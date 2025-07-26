@@ -1,0 +1,97 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+// Define aliases for our macro trigger keys for easy reading
+#define KEY_M01 F13
+#define KEY_M02 F14
+#define KEY_M03 F15
+#define KEY_M04 F16
+#define KEY_M05 F17
+#define KEY_M06 F18
+#define KEY_M07 F19
+#define KEY_M08 F20
+#define KEY_M09 F21
+#define KEY_M10 F22
+#define KEY_M11 F23
+#define KEY_M12 F24
+#define KEY_M13 C(S(F1))  // Ctrl+Shift+F1
+#define KEY_M14 C(S(F2))
+#define KEY_M15 C(S(F3))
+#define KEY_M16 C(S(F4))
+#define KEY_M17 C(S(F5))
+#define KEY_M18 C(S(F6))
+
+#define ENC1_UP   C(S(F7))
+#define ENC1_DN   C(S(F8))
+#define ENC1_PR   C(S(F9))
+
+#define ENC2_UP   C(S(F10))
+#define ENC2_DN   C(S(F11))
+#define ENC2_PR   C(S(F12))
+
+#define ENC3_UP   C(A(F1))  // Ctrl+Alt+F1
+#define ENC3_DN   C(A(F2))
+#define ENC3_PR   C(A(F3))
+
+
+/ {
+    // This combo clears all Bluetooth bonding profiles.
+    // Press the top-left and top-right keys of your matrix at the same time and hold for a moment.
+    combos {
+         compatible = "zmk,combos";
+         reset_combo {
+             timeout-ms = <500>;
+             key-positions = <0 5>; // Corresponds to the first and last key in a row
+             bindings = <&bt BT_CLR>;
+         };
+     };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                // Row 1 (Top)
+                &kp KEY_M01   &kp KEY_M02   &kp KEY_M03   &kp KEY_M04   &kp KEY_M05   &kp KEY_M06
+                // Row 2 (Middle)
+                &kp KEY_M07   &kp KEY_M08   &kp KEY_M09   &kp KEY_M10   &kp KEY_M11   &kp KEY_M12
+                // Row 3 (Bottom)
+                &kp KEY_M13   &kp KEY_M14   &kp KEY_M15   &kp KEY_M16   &kp KEY_M17   &kp KEY_M18
+            >;
+
+            // Define what encoder turns do on this layer
+            sensor-bindings = <&inc_dec_kp ENC1_UP ENC1_DN>,
+                              <&inc_dec_kp ENC2_UP ENC2_DN>,
+                              <&inc_dec_kp ENC3_UP ENC3_DN>;
+        };
+    };
+
+    // Encoder configuration now includes the press action directly
+    encoder_1: encoder_1 {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 4 0>;  // Pin A0 (P0.04)
+        b-gpios = <&pro_micro 5 0>;  // Pin A1 (P0.05)
+        press-gpios = <&pro_micro 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; // Pin A2
+        on-press = <&kp ENC1_PR>; // Behavior for the press
+        steps = <2>;
+    };
+
+    encoder_2: encoder_2 {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 7 0>;   // Pin A3 (P0.29)
+        b-gpios = <&pro_micro 18 0>;  // Pin SCK (P0.17)
+        press-gpios = <&pro_micro 19 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; // Pin MOSI
+        on-press = <&kp ENC2_PR>;
+        steps = <2>;
+    };
+
+    encoder_3: encoder_3 {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 20 0>;  // Pin MISO (P0.21)
+        b-gpios = <&pro_micro 15 0>;  // Pin RX (P1.10)
+        press-gpios = <&pro_micro 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; // Pin TX
+        on-press = <&kp ENC3_PR>;
+        steps = <2>;
+    };
+};
