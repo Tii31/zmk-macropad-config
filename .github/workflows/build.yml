@@ -3,3 +3,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    with:
+      # This tells the build to create a matrix with one specific target.
+      # The board is nice_nano_v2, and we tell it to look for a file ending in "macropad.keymap"
+      matrix:
+        include:
+          - board: nice_nano_v2
+            shield: macropad
